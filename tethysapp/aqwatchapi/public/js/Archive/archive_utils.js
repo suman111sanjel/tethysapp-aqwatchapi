@@ -444,6 +444,7 @@ myApp.ArchiveTimeSeriesModelData = async function (layerProperties, param, Worki
             EmptyDivIndexList.push(index);
         }
     });
+
     if (CurrentValue) {
         let index = EmptyDivIndexList[0];
         let responseData = await myApp.makeRequestWithCookieCSRFToken('POST', myApp.APICollection.api.TimeSeriesModelData, param);

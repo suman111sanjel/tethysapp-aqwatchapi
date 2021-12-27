@@ -160,6 +160,7 @@ def AOIPolygon(request):
     nc_fid.close()
     return JsonResponse(alldata)
 
+
 def GetMapIMAGE(request):
     wmsList = ast.literal_eval(request.POST.get('wmsList'))
     LAYER = ast.literal_eval(request.POST.get('LAYER'))

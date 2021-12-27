@@ -241,6 +241,7 @@ myApp.addingLayersToMap = async function () {
     /**
      * Create an overlay to anchor the popup to the map.
      */
+
     myApp.locationOverlay = new ol.Overlay({
         element: container,
         autoPan: true,

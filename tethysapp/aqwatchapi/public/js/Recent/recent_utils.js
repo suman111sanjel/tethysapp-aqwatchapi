@@ -204,6 +204,7 @@ myApp.computeIndicesClickFun = async function (Workingvalue, index, GroupValue, 
                     if (!isNaN(st_id)) {
                         let sd = myApp.formatDate(myApp.nowRecent);
                         let ed = myApp.formatDate(myApp.endDate);
+
                         let param = {
                             stId: st_id,
                             ModelClass: obj2.ModelClass,
@@ -213,6 +214,7 @@ myApp.computeIndicesClickFun = async function (Workingvalue, index, GroupValue, 
                             EndDate: ed
                         }
                         let dataRecived = await myApp.makeRequest('GET', myApp.APICollection.api.commonAPI + '?param=' + JSON.stringify(param).toString())
+
                         let parsedData = JSON.parse(dataRecived);
                         let stationName = feature.getProperties().folder_name;
                         let title = obj2.chart.title(stationName, sd);

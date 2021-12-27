@@ -596,6 +596,7 @@ myApp.getCookie = function (name) {
     }
     return cookieValue;
 };
+
 myApp.formatDate = function (date) {
     var d = new Date(date),
         month = '' + (d.getMonth() + 1),

@@ -93,56 +93,99 @@
 #     return {"SeriesData":seriesData,"status":200,"XaxisLabel":XaxisLabel}
 #
 
-import netCDF4
+# import netCDF4
+# import numpy
+# import datetime
+# import threading
+
+
+
+# def init():
+#     tt1 = datetime.datetime.now()
+#     ncFullPath = '/home/suman/192.168.11.242 user Suman/Qout_era5_t640_24hr_19790101to20191231.nc'
+#     # ncFullPath = '/zData/temps/south_asia-geoglows/Qout_era5_t640_24hr_19790101to20191231.nc'
+#     nc_fid = netCDF4.Dataset(ncFullPath, 'r')
+#     lis_var = nc_fid.variables
+#     Comid = 5084007
+#     rividAll = nc_fid.variables['rivid'][:]
+#     time = nc_fid.variables['time'][:]
+#     tt2 = datetime.datetime.now()
+#     getDifference = numpy.abs(rividAll - Comid)
+#     absRiverId = numpy.abs(getDifference - Comid)
+#     comid_idx = (absRiverId.argmin())
+#     listNew = []
+#     DateList = []
+#
+#     def collectDates():
+#         for timestep, v in enumerate(time):
+#             dt = netCDF4.num2date(lis_var['time'][timestep], units=lis_var['time'].units, calendar=lis_var['time'].calendar)
+#             dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
+#             DateList.append(dt_str)
+#     def collectValues():
+#         for timestep, v in enumerate(time):
+#             nc_arr = nc_fid.variables['Qout'][timestep,comid_idx]
+#             listNew.append(float(nc_arr))
+#
+#     t1 = threading.Thread(target=collectDates, name='t1')
+#     t2 = threading.Thread(target=collectValues, name='t2')
+#
+#     # starting threads
+#     t1.start()
+#     t2.start()
+#
+#     # wait until all threads finish
+#     t1.join()
+#     t2.join()
+#
+#     # print(listNew)
+#     # print(DateList)
+#     nc_fid.close()
+#     tt3 = datetime.datetime.now()
+#     print('t2-t1', tt2 - tt1)
+#     print('t3-t2', tt3 - tt2)
+#     print('t3-t1', tt3 - tt1)
+#
+# init()
+
+
+
+
+import rasterio as rio
+import rasterstats as rstats
 import numpy
-import datetime
-import threading
+import netCDF4
 
 
-
-def init():
-    tt1 = datetime.datetime.now()
-    ncFullPath = '/home/suman/192.168.11.242 user Suman/Qout_era5_t640_24hr_19790101to20191231.nc'
-    # ncFullPath = '/zData/temps/south_asia-geoglows/Qout_era5_t640_24hr_19790101to20191231.nc'
-    nc_fid = netCDF4.Dataset(ncFullPath, 'r')
-    lis_var = nc_fid.variables
-    Comid = 5084007
-    rividAll = nc_fid.variables['rivid'][:]
+def ZonalValueOfPolygon(POLYGON,ncFilePath,LAYER):
+    nc_fid = netCDF4.Dataset(ncFilePath, 'r')  # Reading the netCDF file
+    lats = nc_fid.variables['latitude'][:]  # Defining the latitude array
+    lons = nc_fid.variables['longitude'][:]  # Defining the longitude array
+    field = nc_fid.variables[LAYER][:]  # Defning the variable array
     time = nc_fid.variables['time'][:]
-    tt2 = datetime.datetime.now()
-    getDifference = numpy.abs(rividAll - Comid)
-    absRiverId = numpy.abs(getDifference - Comid)
-    comid_idx = (absRiverId.argmin())
-    listNew = []
-    DateList = []
 
-    def collectDates():
-        for timestep, v in enumerate(time):
-            dt = netCDF4.num2date(lis_var['time'][timestep], units=lis_var['time'].units, calendar=lis_var['time'].calendar)
-            dt_str = dt.strftime("%Y-%m-%d %H:%M:%S")
-            DateList.append(dt_str)
-    def collectValues():
-        for timestep, v in enumerate(time):
-            nc_arr = nc_fid.variables['Qout'][timestep,comid_idx]
-            listNew.append(float(nc_arr))
+    deltaLats = lats[1] - lats[0]
+    deltaLons = lons[1] - lons[0]
 
-    t1 = threading.Thread(target=collectDates, name='t1')
-    t2 = threading.Thread(target=collectValues, name='t2')
+    deltaLatsAbs = numpy.abs(deltaLats)
+    deltaLonsAbs = numpy.abs(deltaLons)
 
-    # starting threads
-    t1.start()
-    t2.start()
-
-    # wait until all threads finish
-    t1.join()
-    t2.join()
-
-    # print(listNew)
-    # print(DateList)
+    geotransform = rio.transform.from_origin(lons.min(), lats.max(), deltaLatsAbs, deltaLonsAbs)
+    alldata = {}
+    for timestep, v in enumerate(time):
+        nc_arr = field[timestep]
+        stat = rstats.zonal_stats(POLYGON, nc_arr, affine=geotransform, stats='mean min max std')
+        alldata['mean'] = round(stat[0]["mean"], 3)
+        alldata['min'] = round(stat[0]["min"], 3)
+        alldata['max'] = round(stat[0]["max"], 3)
+        alldata['std'] = round(stat[0]["std"], 3)
     nc_fid.close()
-    tt3 = datetime.datetime.now()
-    print('t2-t1', tt2 - tt1)
-    print('t3-t2', tt3 - tt2)
-    print('t3-t1', tt3 - tt1)
+    return alldata
 
-init()
+def mainFunction():
+    listofData=[]
+    timeseriesData=[]
+    for i in listofData:
+        d=ZonalValueOfPolygon(i)
+        timeseriesData.append(d)
+
+mainFunction()

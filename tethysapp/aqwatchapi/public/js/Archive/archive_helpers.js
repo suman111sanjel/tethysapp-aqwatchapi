@@ -56,7 +56,8 @@ myApp.constants = {
     },
 }
 
-myApp.TreeDataObject = [{
+myApp.TreeDataObject = [
+    {
     title: 'PM',
     value: 1,
     child: [

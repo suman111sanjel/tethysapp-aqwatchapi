@@ -621,7 +621,8 @@ ol.layer.TimeDimensionTile = function (params) {
                     this.animationDownloadSpan.setAttribute('data-disabled', 0);
                 }
             }
-        }, true);
+
+            }, true);
     };
     this.tileLoadStart = function (event) {
         this.loading = this.loading + 1;

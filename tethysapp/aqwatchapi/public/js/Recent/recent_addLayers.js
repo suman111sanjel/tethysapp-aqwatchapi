@@ -671,6 +671,7 @@ myApp.addingLayersToMap = async function () {
         myApp.Drawsource.clear();
         myApp.locationOverlay.setPosition(undefined);
     });
+
     let regionOrCountry = $('#selectl0').val();
     let RegionGeoJSON = await myApp.makeRequest('GET', myApp.APICollection.api.RegionGeojson + '?id=' + regionOrCountry);
     myApp.RegionGeoJSONParse = JSON.parse(RegionGeoJSON);

@@ -421,6 +421,7 @@ myApp.getForecastWMSList = async function (url) {
     }
     return wmsList.sort()
 }
+
 let addLayerToMap = async function (kk) {
     let catalogURl = threddDataSource + kk.catalog;
     let wmsList = await myApp.getForecastWMSList(catalogURl);
